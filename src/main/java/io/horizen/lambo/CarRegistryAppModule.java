@@ -21,7 +21,7 @@ import com.horizen.secret.Secret;
 import com.horizen.secret.SecretSerializer;
 import com.horizen.settings.SettingsReader;
 import com.horizen.state.ApplicationState;
-import com.horizen.storage.IODBStorageUtil;
+import com.horizen.storage.leveldb.VersionedLevelDbStorageAdapter;
 import com.horizen.storage.Storage;
 import com.horizen.transaction.BoxTransaction;
 import com.horizen.transaction.TransactionSerializer;
@@ -81,8 +81,10 @@ public class CarRegistryAppModule
         File walletBoxStore = new File(dataDirPath + "/wallet");
         File walletTransactionStore = new File(dataDirPath + "/walletTransaction");
         File walletForgingBoxesInfoStorage = new File(dataDirPath + "/walletForgingStake");
+        File walletCswDataStorage = new File(dataDirPath + "/walletCswDataStorage");
         File stateStore = new File(dataDirPath + "/state");
         File stateForgerBoxStore = new File(dataDirPath + "/stateForgerBox");
+        File stateUtxoMerkleTreeStore = new File(dataDirPath + "/stateUtxoMerkleTree");
         File historyStore = new File(dataDirPath + "/history");
         File consensusStore = new File(dataDirPath + "/consensusData");
 
@@ -121,30 +123,37 @@ public class CarRegistryAppModule
                 .annotatedWith(Names.named("ApplicationState"))
                 .toInstance(defaultApplicationState);
 
+
         bind(Storage.class)
                 .annotatedWith(Names.named("SecretStorage"))
-                .toInstance(IODBStorageUtil.getStorage(secretStore));
+                .toInstance(new VersionedLevelDbStorageAdapter(secretStore));
         bind(Storage.class)
                 .annotatedWith(Names.named("WalletBoxStorage"))
-                .toInstance(IODBStorageUtil.getStorage(walletBoxStore));
+                .toInstance(new VersionedLevelDbStorageAdapter(walletBoxStore));
         bind(Storage.class)
                 .annotatedWith(Names.named("WalletTransactionStorage"))
-                .toInstance(IODBStorageUtil.getStorage(walletTransactionStore));
+                .toInstance(new VersionedLevelDbStorageAdapter(walletTransactionStore));
         bind(Storage.class)
                 .annotatedWith(Names.named("WalletForgingBoxesInfoStorage"))
-                .toInstance(IODBStorageUtil.getStorage(walletForgingBoxesInfoStorage));
+                .toInstance(new VersionedLevelDbStorageAdapter(walletForgingBoxesInfoStorage));
+        bind(Storage.class)
+                .annotatedWith(Names.named("WalletCswDataStorage"))
+                .toInstance(new VersionedLevelDbStorageAdapter(walletCswDataStorage));
         bind(Storage.class)
                 .annotatedWith(Names.named("StateStorage"))
-                .toInstance(IODBStorageUtil.getStorage(stateStore));
+                .toInstance(new VersionedLevelDbStorageAdapter(stateStore));
         bind(Storage.class)
                 .annotatedWith(Names.named("StateForgerBoxStorage"))
-                .toInstance(IODBStorageUtil.getStorage(stateForgerBoxStore));
+                .toInstance(new VersionedLevelDbStorageAdapter(stateForgerBoxStore));
+        bind(Storage.class)
+                .annotatedWith(Names.named("StateUtxoMerkleTreeStorage"))
+                .toInstance(new VersionedLevelDbStorageAdapter(stateUtxoMerkleTreeStore));
         bind(Storage.class)
                 .annotatedWith(Names.named("HistoryStorage"))
-                .toInstance(IODBStorageUtil.getStorage(historyStore));
+                .toInstance(new VersionedLevelDbStorageAdapter(historyStore));
         bind(Storage.class)
                 .annotatedWith(Names.named("ConsensusStorage"))
-                .toInstance(IODBStorageUtil.getStorage(consensusStore));
+                .toInstance(new VersionedLevelDbStorageAdapter(consensusStore));
 
         bind(new TypeLiteral<List<ApplicationApiGroup>> () {})
                 .annotatedWith(Names.named("CustomApiGroups"))
